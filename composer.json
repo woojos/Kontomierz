@@ -1,0 +1,28 @@
+{
+    "name": "woojos/Kontomierz",
+    "description": "API kontomierz",
+    "type": "library",
+    "license": "free",
+    "minimum-stability": "dev",
+
+    "require": {
+        "guzzlehttp/guzzle": "^6.2"
+    },
+
+    "require-dev": {
+        "pds/skeleton": "@dev",
+        "phpunit/phpunit": "^5.7"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "woojos\\Kontomierz\\": "src/"
+        }
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "woojos\\Kontomierz\\Tests\\": "tests/"
+        }
+    }
+}
