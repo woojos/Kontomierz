@@ -3,18 +3,15 @@ namespace woojos\Kontomierz\Tests\Integration;
 
 use GuzzleHttp\Client;
 use woojos\Kontomierz\KontomierzClient;
-use PHPUnit\Framework\TestCase;
 use woojos\Kontomierz\KontomierzClientException;
 use woojos\Kontomierz\UserAccount;
 
-class KontomierzClientTest extends TestCase
+/**
+ * Class UserAccountTest
+ * @package woojos\Kontomierz\Tests\Integration
+ */
+class UserAccountTest extends TestCaseBase
 {
-    /** @var string  */
-    private $apiKey = 'RC7p1N8vU7JLxVV72l3hdcMP3hj7pgR90qRfG4sGV8HEZdPvrnyvb5sTBJWt0HQH';
-    /** @var KontomierzClient */
-    private $kontomierzClient;
-    /** @var TestHelper */
-    private $testHelper;
 
     public function setUp()
     {
@@ -29,19 +26,12 @@ class KontomierzClientTest extends TestCase
         }
     }
 
-    public function __construct($name = null, array $data = [], $dataName = '')
-    {
-        parent::__construct($name, $data, $dataName);
-        $this->kontomierzClient = new KontomierzClient(new Client(), $this->apiKey);
-        $this->testHelper = new TestHelper($this->apiKey);
-    }
-
     /**
      * @test
      */
     public function shouldGetUserAccounts()
     {
-        $ret = $this->kontomierzClient->getUserAccounts();
+        $ret = $this->kontomierzClient->getUserAccountList();
         self::assertEquals(1, count($ret));
     }
 
@@ -73,13 +63,13 @@ class KontomierzClientTest extends TestCase
         $name1 = 'Test Wallet 1';
         $name2 = 'Test Wallet 2';
 
-        $this->testHelper->createUserAccount(new UserAccount(0, $name1, 1001, 'PLN', false));
-        $userAccount = $this->testHelper->getUserAccountByName($name1);
+        $this->createUserAccount(new UserAccount(0, $name1, 1001, 'PLN', false));
+        $userAccount = $this->getUserAccountByName($name1);
         $userAccount->setDisplayName($name2);
         $userAccount->setCurrencyBalance(99);
 
         $this->kontomierzClient->updateUserAccount($userAccount);
-        $updatedUserAccount = $this->testHelper->getUserAccountByName($name2);
+        $updatedUserAccount = $this->getUserAccountByName($name2);
         $this->assertEquals($userAccount->getDisplayName(), $updatedUserAccount->getDisplayName());
         $this->assertEquals(99, $updatedUserAccount->getCurrencyBalance());
     }
@@ -99,8 +89,8 @@ class KontomierzClientTest extends TestCase
      */
     public function shouldDeleteUserAccount()
     {
-        $this->testHelper->createUserAccount(new UserAccount(0, 'xyz', 1001, 'PLN', false));
-        $userAccount = $this->testHelper->getUserAccountByName('xyz');
+        $this->createUserAccount(new UserAccount(0, 'xyz', 1001, 'PLN', false));
+        $userAccount = $this->getUserAccountByName('xyz');
 
         $this->kontomierzClient->deleteUserAccount($userAccount);
     }
@@ -113,6 +103,47 @@ class KontomierzClientTest extends TestCase
         $this->expectException(KontomierzClientException::class);
         $this->expectExceptionCode(KontomierzClientException::DELETE_USER_ACCOUNT_CODE);
         $this->kontomierzClient->deleteUserAccount(new UserAccount(1, 'xyz', 1001, 'PLN', false));
+    }
+
+    private function createUserAccount(UserAccount $userAccount)
+    {
+        $this->httpClient->post(
+            self::URL . 'user_accounts/create_wallet.json?api_key=' . $this->apiKey,
+            [
+                'form_params' => [
+                    'user_account[user_name]' => $userAccount->getDisplayName(),
+                    'user_account[currency_balance]' => $userAccount->getCurrencyBalance(),
+                    'user_account[currency_name]' => $userAccount->getCurrencyName(),
+                    'user_account[liquid]' => 1,
+
+                ]
+            ]
+        );
+    }
+
+    /**
+     * @param string $name
+     * @return UserAccount
+     * @throws \Exception
+     */
+    private function getUserAccountByName($name)
+    {
+        $response = $this->httpClient->get(self::URL . 'user_accounts.json?api_key=' . $this->apiKey);
+        $arrayResponse = json_decode($response->getBody(), true);
+
+        foreach ($arrayResponse as $row) {
+            if ($name == $row['user_account']['display_name']) {
+                return new UserAccount(
+                    $row['user_account']['id'],
+                    $row['user_account']['display_name'],
+                    $row['user_account']['currency_balance'],
+                    $row['user_account']['currency_name'],
+                    1 == $row['user_account']['is_default_wallet']
+                );
+            }
+        }
+
+        throw new \Exception('TestHelper: User Account not found.');
     }
 
 }

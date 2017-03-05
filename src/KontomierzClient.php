@@ -4,6 +4,10 @@ namespace woojos\Kontomierz;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
+/**
+ * Class KontomierzClient
+ * @package woojos\Kontomierz
+ */
 class KontomierzClient
 {
 
@@ -13,7 +17,6 @@ class KontomierzClient
 
     /** @var string */
     private $apiKey;
-
     /** @var Client */
     private $httpClient;
 
@@ -30,7 +33,7 @@ class KontomierzClient
     /**
      * @return UserAccount[]
      */
-    public function getUserAccounts()
+    public function getUserAccountList()
     {
         $response = $this->httpClient->get(self::URL . 'user_accounts.' . self::FORMAT . '?api_key=' . $this->apiKey);
         $arrayResponse = json_decode($response->getBody(), true);
@@ -58,19 +61,25 @@ class KontomierzClient
         try {
             $this->httpClient->post(
                 self::URL . 'user_accounts/create_wallet.' . self::FORMAT . '?api_key=' . $this->apiKey,
-                [
-                    'form_params' => [
-                        'user_account[user_name]' => $userAccount->getDisplayName(),
-                        'user_account[currency_balance]' => $userAccount->getCurrencyBalance(),
-                        'user_account[currency_name]' => $userAccount->getCurrencyName(),
-                        'user_account[liquid]' => 1,
-
-                    ]
-                ]
+                ['form_params' => $this->buildUserAccountRequestArray($userAccount)]
             );
         } catch (ClientException $e) {
             throw KontomierzClientException::createUserAccountFailed($e);
         }
+    }
+
+    /**
+     * @param UserAccount $userAccount
+     * @return array
+     */
+    private function buildUserAccountRequestArray(UserAccount $userAccount)
+    {
+        return [
+            'user_account[user_name]' => $userAccount->getDisplayName(),
+            'user_account[currency_balance]' => $userAccount->getCurrencyBalance(),
+            'user_account[currency_name]' => $userAccount->getCurrencyName(),
+            'user_account[liquid]' => 1
+        ];
     }
 
     /**
@@ -82,15 +91,7 @@ class KontomierzClient
         try {
             $this->httpClient->put(
                 self::URL . 'user_accounts/' . $userAccount->getId() . '/update_wallet.' . self::FORMAT . '?api_key=' . $this->apiKey,
-                [
-                    'form_params' => [
-                        'user_account[user_name]' => $userAccount->getDisplayName(),
-                        'user_account[currency_balance]' => $userAccount->getCurrencyBalance(),
-                        'user_account[currency_name]' => $userAccount->getCurrencyName(),
-                        'user_account[liquid]' => 1,
-
-                    ]
-                ]
+                ['form_params' => $this->buildUserAccountRequestArray($userAccount)]
             );
         } catch (ClientException $e) {
             throw KontomierzClientException::updateUserAccountFailed($e);
@@ -110,6 +111,68 @@ class KontomierzClient
         }
     }
 
+    /**
+     * @return array
+     * @throws KontomierzClientException
+     */
+    public function getCategories()
+    {
+        try {
+            $response = $this->httpClient->get(self::URL . 'categories.' . self::FORMAT . '?api_key=' . $this->apiKey . '&=direction=withdrawal&in_wallet=true');
+            return CategoryGroupFactory::createFromJSONResponse($response->getBody()->getContents());
+        } catch (ClientException $e) {
+            throw KontomierzClientException::getCategoriesFailed($e);
+        }
+    }
+
+    /**
+     * @param Transaction $transaction
+     */
+    public function createTransaction(Transaction $transaction)
+    {
+        try {
+            $this->httpClient->post(
+                self::URL . 'money_transactions.' . self::FORMAT . '?api_key=' . $this->apiKey,
+                ['form_params' => $this->buildTransactionRequestArray($transaction)]
+            );
+        } catch (ClientException $e) {
+            throw KontomierzClientException::createTransactionFailed($e);
+        }
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @return array
+     */
+    private function buildTransactionRequestArray(Transaction $transaction)
+    {
+        return [
+            'money_transaction[user_account_id]' => $transaction->getUserAccountId(),
+            'money_transaction[category_id]' => $transaction->getCategoryId(),
+            'money_transaction[currency_amount]' => $transaction->getCurrencyAmount(),
+            'money_transaction[currency_name]' => $transaction->getCurrencyName(),
+            'money_transaction[direction]' => 'withdrawal',
+            'money_transaction[tag_string]' => $transaction->getTagString(),
+            'money_transaction[name]' => $transaction->getName(),
+            'money_transaction[transaction_on]' => $transaction->getTransactionOn()->format("Y-m-d"),
+            'money_transaction[client_assigned_id]' => time(),
+        ];
+    }
+
+    public function getTransactionList(TransactionQuery $query)
+    {
+        try {
+
+            $url = self::URL . 'money_transactions.' . self::FORMAT . '?api_key=' . $this->apiKey . '&' . $query->buildQuery();
+            $response = $this->httpClient->get($url);
+
+            print_r($response->getBody()->getContents()); die;
+
+            //return CategoryGroupFactory::createFromJSONResponse($response->getBody()->getContents());
+        } catch (ClientException $e) {
+            throw KontomierzClientException::getCategoriesFailed($e);
+        }
+    }
 }
 
 
