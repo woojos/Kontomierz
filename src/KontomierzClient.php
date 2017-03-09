@@ -127,6 +127,7 @@ class KontomierzClient
 
     /**
      * @param Transaction $transaction
+     * @throws KontomierzClientException
      */
     public function createTransaction(Transaction $transaction)
     {
@@ -159,6 +160,10 @@ class KontomierzClient
         ];
     }
 
+    /**
+     * @param TransactionQuery $query
+     * @throws KontomierzClientException
+     */
     public function getTransactionList(TransactionQuery $query)
     {
         try {
