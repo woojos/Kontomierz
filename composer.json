@@ -2,10 +2,12 @@
     "name": "woojos/Kontomierz",
     "description": "API kontomierz",
     "type": "library",
-    "license": "free",
+    "license": "MIT",
+    "homepage": "https://github.com/woojos/Kontomierz",
     "minimum-stability": "dev",
 
     "require": {
+        "php": ">=5.6",
         "guzzlehttp/guzzle": "^6.2"
     },
 
