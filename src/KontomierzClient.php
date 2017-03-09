@@ -1,5 +1,5 @@
 <?php
-namespace woojos\Kontomierz;
+namespace woojos\kontomierz;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -11,6 +11,9 @@ use GuzzleHttp\Exception\ClientException;
 class KontomierzClient
 {
 
+    /**
+     *
+     */
     const FORMAT = 'json';
 
     const URL = 'https://kontomierz.pl/k4/';
@@ -127,15 +130,19 @@ class KontomierzClient
 
     /**
      * @param Transaction $transaction
+     * @return Transaction
      * @throws KontomierzClientException
      */
     public function createTransaction(Transaction $transaction)
     {
         try {
-            $this->httpClient->post(
+            $response = $this->httpClient->post(
                 self::URL . 'money_transactions.' . self::FORMAT . '?api_key=' . $this->apiKey,
                 ['form_params' => $this->buildTransactionRequestArray($transaction)]
             );
+            $responseArray = json_decode($response->getBody()->getContents(), true);
+
+            return TransactionFactory::createFromJSONResponse($responseArray['money_transaction']);
         } catch (ClientException $e) {
             throw KontomierzClientException::createTransactionFailed($e);
         }
@@ -147,12 +154,14 @@ class KontomierzClient
      */
     private function buildTransactionRequestArray(Transaction $transaction)
     {
+        $direction = $transaction->getCurrencyAmount() >= 0 ? Transaction::DIRECTION_DEPOSIT : Transaction::DIRECTION_WITHDRAWAL;
+
         return [
             'money_transaction[user_account_id]' => $transaction->getUserAccountId(),
             'money_transaction[category_id]' => $transaction->getCategoryId(),
             'money_transaction[currency_amount]' => $transaction->getCurrencyAmount(),
             'money_transaction[currency_name]' => $transaction->getCurrencyName(),
-            'money_transaction[direction]' => 'withdrawal',
+            'money_transaction[direction]' => $direction,
             'money_transaction[tag_string]' => $transaction->getTagString(),
             'money_transaction[name]' => $transaction->getName(),
             'money_transaction[transaction_on]' => $transaction->getTransactionOn()->format("Y-m-d"),
@@ -167,13 +176,14 @@ class KontomierzClient
     public function getTransactionList(TransactionQuery $query)
     {
         try {
-
             $url = self::URL . 'money_transactions.' . self::FORMAT . '?api_key=' . $this->apiKey . '&' . $query->buildQuery();
             $response = $this->httpClient->get($url);
-
-            print_r($response->getBody()->getContents()); die;
-
-            //return CategoryGroupFactory::createFromJSONResponse($response->getBody()->getContents());
+            $responseInArray = json_decode($response->getBody()->getContents(), true);
+            $collection = [];
+            foreach ($responseInArray as $transaction) {
+                $collection[] = TransactionFactory::createFromJSONResponse($transaction['money_transaction']);
+            }
+            return $collection;
         } catch (ClientException $e) {
             throw KontomierzClientException::getCategoriesFailed($e);
         }

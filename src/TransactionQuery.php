@@ -1,5 +1,5 @@
 <?php
-namespace woojos\Kontomierz;
+namespace woojos\kontomierz;
 
 /**
  * Class TransactionQuery
@@ -34,7 +34,45 @@ class TransactionQuery
      */
     public function buildQuery()
     {
-        return '';
+        $query = [];
+
+        if (!empty($this->page)) {
+            $query['page'] = $this->page;
+        }
+
+        if (!empty($this->perPage)) {
+            $query['per_page'] = $this->perPage;
+        }
+
+        if (!empty($this->userAccountId)) {
+            $query['user_account_id'] = $this->userAccountId;
+        }
+
+        if (!empty($this->query)) {
+            $query['q'] = $this->query;
+        }
+
+        if (!empty($this->startOn)) {
+            $query['start_on'] = $this->startOn->format('Y-m-d');
+        }
+
+        if (!empty($this->endOn)) {
+            $query['end_on'] = $this->endOn->format('Y-m-d');
+        }
+
+        if (!empty($this->direction)) {
+            $query['direction'] = $this->direction;
+        }
+
+        if (!empty($this->categoryGroupId)) {
+            $query['category_group_id'] = $this->categoryGroupId;
+        }
+
+        if (!empty($this->categoryId)) {
+            $query['category_id'] = $this->categoryId;
+        }
+
+        return http_build_query($query);
     }
 
     /**

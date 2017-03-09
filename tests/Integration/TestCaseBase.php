@@ -1,10 +1,9 @@
 <?php
-namespace woojos\Kontomierz\Tests\Integration;
+namespace woojos\kontomierz\Tests\Integration;
 
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
-use woojos\Kontomierz\KontomierzClient;
-use woojos\Kontomierz\UserAccount;
+use woojos\kontomierz\KontomierzClient;
 
 /**
  * Class TestCaseBase

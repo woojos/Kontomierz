@@ -1,5 +1,5 @@
 {
-    "name": "woojos/Kontomierz",
+    "name": "woojos/kontomierz",
     "description": "API kontomierz",
     "type": "library",
     "license": "MIT",
@@ -18,13 +18,13 @@
 
     "autoload": {
         "psr-4": {
-            "woojos\\Kontomierz\\": "src/"
+            "woojos\\kontomierz\\": "src/"
         }
     },
 
     "autoload-dev": {
         "psr-4": {
-            "woojos\\Kontomierz\\Tests\\": "tests/"
+            "woojos\\kontomierz\\Tests\\": "tests/"
         }
     }
 }

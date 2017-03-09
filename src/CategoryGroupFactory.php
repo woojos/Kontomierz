@@ -1,5 +1,5 @@
 <?php
-namespace woojos\Kontomierz;
+namespace woojos\kontomierz;
 
 /**
  * Class CategoryGroupFactory
@@ -16,6 +16,7 @@ class CategoryGroupFactory
     {
         $responseInArray = json_decode($response, true);
         $groups = [];
+
         foreach ($responseInArray['category_groups'] as $groupArray) {
 
             $categories = [];

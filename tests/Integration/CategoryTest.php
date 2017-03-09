@@ -1,7 +1,7 @@
 <?php
-namespace woojos\Kontomierz\Tests\Integration;
+namespace woojos\kontomierz\Tests\Integration;
 
-use woojos\Kontomierz\CategoryGroup;
+use woojos\kontomierz\CategoryGroup;
 
 /**
  * Class CategoryTest

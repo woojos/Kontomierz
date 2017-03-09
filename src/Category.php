@@ -1,5 +1,5 @@
 <?php
-namespace woojos\Kontomierz;
+namespace woojos\kontomierz;
 
 /**
  * Class Category

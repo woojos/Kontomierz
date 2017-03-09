@@ -1,5 +1,5 @@
 <?php
-namespace woojos\Kontomierz;
+namespace woojos\kontomierz;
 
 /**
  * Class Transaction
@@ -7,6 +7,10 @@ namespace woojos\Kontomierz;
  */
 class Transaction
 {
+    const DIRECTION_WITHDRAWAL = 'withdrawal';
+    const DIRECTION_DEPOSIT = 'deposit';
+    const DIRECTION_ALL = 'all';
+
     /** @var int */
     private $id;
     /** @var int */
