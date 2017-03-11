@@ -25,4 +25,28 @@ class CategoryGroup
         $this->name = $name;
         $this->categories = $categories;
     }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return Category[]
+     */
+    public function getCategories()
+    {
+        return $this->categories;
+    }
 }
