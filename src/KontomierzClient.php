@@ -165,7 +165,7 @@ class KontomierzClient
             'money_transaction[tag_string]' => $transaction->getTagString(),
             'money_transaction[name]' => $transaction->getName(),
             'money_transaction[transaction_on]' => $transaction->getTransactionOn()->format("Y-m-d"),
-            'money_transaction[client_assigned_id]' => time(),
+            'money_transaction[client_assigned_id]' => microtime(true),
         ];
     }
 
