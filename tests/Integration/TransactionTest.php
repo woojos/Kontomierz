@@ -23,11 +23,11 @@ class TransactionTest extends TestCaseBase
     public function setUp()
     {
         $httpClient = new Client();
-        $response = $httpClient->get('https://kontomierz.pl/k4/money_transactions.json?user_account_id=688430&direction=all&start_on=2017-01-01&end_on=2017-04-01&api_key=' . $this->apiKey);
+        $response = $httpClient->get(self::URL . 'money_transactions.json?user_account_id=688430&direction=all&start_on=2017-01-01&end_on=2017-04-01&api_key=' . $this->apiKey);
         $transactions = json_decode($response->getBody(), true);
 
         foreach ($transactions as $t) {
-            $httpClient->delete('https://kontomierz.pl/k4/money_transactions/'.$t['money_transaction']['id'].'.json?api_key=' . $this->apiKey);
+            $httpClient->delete(self::URL . 'money_transactions/'.$t['money_transaction']['id'].'.json?api_key=' . $this->apiKey);
         }
     }
 

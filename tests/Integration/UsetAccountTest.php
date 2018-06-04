@@ -15,12 +15,12 @@ class UserAccountTest extends TestCaseBase
     public function setUp()
     {
         $httpClient = new Client();
-        $response = $httpClient->get('https://kontomierz.pl/k4/user_accounts.json?api_key=' . $this->apiKey);
+        $response = $httpClient->get(self::URL . 'user_accounts.json?api_key=' . $this->apiKey);
         $accounts = json_decode($response->getBody(), true);
 
         foreach ($accounts as $a) {
             if (1 != $a['user_account']['is_default_wallet']) {
-                $httpClient->delete('https://kontomierz.pl/k4/user_accounts/'.$a['user_account']['id'].'/destroy_wallet.json?api_key=' . $this->apiKey);
+                $httpClient->delete(self::URL . 'user_accounts/'.$a['user_account']['id'].'/destroy_wallet.json?api_key=' . $this->apiKey);
             }
         }
     }

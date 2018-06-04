@@ -1,0 +1,1 @@
+Kontomierz.pl API klient

@@ -11,12 +11,9 @@ use GuzzleHttp\Exception\ClientException;
 class KontomierzClient
 {
 
-    /**
-     *
-     */
     const FORMAT = 'json';
 
-    const URL = 'https://kontomierz.pl/k4/';
+    const URL = 'https://secure.kontomierz.pl/k4/';
 
     /** @var string */
     private $apiKey;
